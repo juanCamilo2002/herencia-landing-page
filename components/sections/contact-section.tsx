@@ -1,74 +1,71 @@
 "use client";
+import { Mail, Phone, MapPin } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { useRevealOnScroll } from "@/lib/useRevealOnScroll";
+import { ContactForm } from "@/components/contact/contact-form";
 
 export function ContactSection() {
   useRevealOnScroll();
+
   return (
     <section
       id="contacto"
       className="
-        py-24 px-4
+        py-28 px-4
         border-t border-white/10
-        bg-linear-to-b from-(--herencia-surface) to-(--herencia-background)
-        reveal animate-fade-up delay-300
+        bg-(--herencia-background)
+        reveal animate-fade-up
       "
     >
-      <div className="max-w-4xl mx-auto text-center space-y-8">
-        {/* Eyebrow */}
-        <p className="text-xs uppercase tracking-[0.35rem] text-(--herencia-gold)">
-          Contacto
-        </p>
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20">
 
-        {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold">
-          Haz parte de nuestra <span className="text-(--herencia-gold)">HERENCIA</span>
-        </h2>
-
-        {/* Description */}
-        <p className="text-white/80 max-w-xl mx-auto">
-          Si deseas conocer más sobre nuetros vinos, realizar pedidos para tu
-          restaurante o para tus eventos, estaremos encantados de atenderte.
-        </p>
-
-        {/* Contact Info */}
-        <div className="space-y-4 text-white/80 text-sm mt-8">
-          <p>
-            Escribenos al correo:{" "}
-            <span className="font-semibold text-(--herencia-gold)">
-              contacto@herenciavinos.com
-            </span>
+        {/* LEFT SIDE */}
+        <div className="space-y-6">
+          <p className="text-xs uppercase tracking-[0.35rem] text-(--herencia-gold)">
+            Contacto
           </p>
 
-          <p>
-            WhatsApp:{" "}
-            <span className="font-semibold text-(--herencia-gold)">
-              +57 300 000 0000
-            </span>
+          <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+            Estamos aquí para<br /> ayudarte.
+          </h2>
+
+          <p className="text-white/80 max-w-md">
+            Hablemos sobre pedidos, distribución, eventos corporativos o
+            información sobre nuestra producción.
           </p>
+
+          {/* Contact info */}
+          <div className="space-y-6 pt-4">
+
+            <div className="flex items-center gap-4">
+              <Mail className="text-(--herencia-gold) w-6 h-6" />
+              <p className="text-white/80">
+                <span className="text-(--herencia-gold) font-semibold">
+                  contacto@herenciavinos.com
+                </span>
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Phone className="text-(--herencia-gold) w-6 h-6" />
+              <p className="text-white/80">
+                <span className="text-(--herencia-gold) font-semibold">
+                  +57 300 000 0000
+                </span>
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <MapPin className="text-(--herencia-gold) w-6 h-6" />
+              <p className="text-white/80">Rivera, Colombia</p>
+            </div>
+
+          </div>
         </div>
 
-        {/* CTA */}
-        <Button
-          size="lg"
-          className="
-            bg-(--herencia-wine)
-            hover:bg-(--herencia-wine-light)
-            text-(--herencia-cream)
-            rounded-full mt-6
-          " 
-        >
-          Contactar ahora
-        </Button>
-
-        {/* Location */}
-        <div className="mt-8 text-xs text-white/60">
-          <p>Rivera, Colombia</p>
-          <p className="mt-1">@herencia.vinos</p>
-        </div>
+        {/* RIGHT SIDE — FORM */}
+        <ContactForm />
       </div>
-
     </section>
   );
 }
