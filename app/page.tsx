@@ -1,3 +1,4 @@
+"use client";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-hader";
 import { ContactSection } from "@/components/sections/contact-section";
@@ -6,22 +7,31 @@ import { ProcessSliderSection } from "@/components/sections/process-slider-secti
 import { StorySection } from "@/components/sections/story-section";
 import { TestimonialsSection } from "@/components/sections/testimonials-section";
 import { WineShowcaseSection } from "@/components/sections/wine-showcase-section";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 export default function Home() {
   return (
-    <>
-    <SiteHeader />
+    <GoogleReCaptchaProvider
+      reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+      scriptProps={{
+        async: true,
+        defer: true
+      }}
+    >
 
-    <main>
-      <HeroSection />
-      <StorySection />
-      <WineShowcaseSection />
-      <ProcessSliderSection />
-      <TestimonialsSection />
-      <ContactSection />
-    </main>
+      <SiteHeader />
 
-    <SiteFooter/>
-    </>
+      <main>
+        <HeroSection />
+        <StorySection />
+        <WineShowcaseSection />
+        <ProcessSliderSection />
+        <TestimonialsSection />
+        <ContactSection />
+      </main>
+
+      <SiteFooter />
+
+    </GoogleReCaptchaProvider>
   );
 }

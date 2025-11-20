@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,15 +30,36 @@ export function ContactForm() {
     resolver: zodResolver(ContactSchema),
   });
 
-  const onSubmit = async (data: ContactFormData) => {
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: { "Content-Type": "application/json" },
-    });
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const [status, setStatus] = useState<null | "success" | "error">(null);
 
-    if (res.ok) {
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      setStatus(null);
+
+      if (!executeRecaptcha) {
+        console.log("reCAPTCHA not loaded");
+        return;
+      }
+
+      const recaptchaToken = await executeRecaptcha("contact_submit");
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        body: JSON.stringify({ ...data, recaptchaToken }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        setStatus("error");
+        return;
+      }
+
+      setStatus("success")
       reset();
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
     }
   };
 
@@ -47,6 +70,7 @@ export function ContactForm() {
         space-y-6 bg-(--herencia-surface)
         border border-white/10 p-8 rounded-3xl 
         shadow-[0_0_40px_rgba(0,0,0,0.4)]
+        transition-transform duration-300
       "
     >
       {/* ROW 1 */}
@@ -93,17 +117,32 @@ export function ContactForm() {
           </p>
         )}
       </div>
+      {/* Botón + feedback */}
+      <div className="space-y-3">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="
+            w-full md:w-auto
+            disabled:opacity-70 disabled:cursor-not-allowed
+          "
+        >
+          {isSubmitting ? "Enviando..." : "Enviar mensaje"}
+        </Button>
 
-      {/* SUBMIT */}
-      <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
-        {isSubmitting ? "Enviando..." : "Enviar mensaje"}
-      </Button>
+        {status === "success" && (
+          <p className="text-(--herencia-gold) text-sm">
+            ✅ Gracias por escribirnos. Hemos recibido tu mensaje.
+          </p>
+        )}
 
-      {isSubmitSuccessful && (
-        <p className="text-(--herencia-gold) text-sm mt-2">
-          ¡Mensaje enviado correctamente!
-        </p>
-      )}
+        {status === "error" && (
+          <p className="text-red-400 text-sm">
+            Ocurrió un error al enviar el mensaje. Intenta de nuevo.
+          </p>
+        )}
+      </div>
+
     </form>
   );
 }
