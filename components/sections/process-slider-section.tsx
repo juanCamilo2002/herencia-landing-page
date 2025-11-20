@@ -128,11 +128,12 @@ export function ProcessSliderSection() {
         <button
           onClick={goPrev}
           className="
-            absolute left-10 top-1/2 -translate-y-1/2 z-40
-            h-12 w-12 rounded-full border border-(--herencia-gold)/40
-            bg-black/40 backdrop-blur-sm flex items-center justify-center
-            hover:bg-(--herencia-gold)/20 transition
-          "
+          hidden md:flex
+          absolute left-10 top-1/2 -translate-y-1/2 z-40
+          h-12 w-12 rounded-full border border-(--herencia-gold)/40
+          bg-black/40 backdrop-blur-sm items-center justify-center
+          hover:bg-(--herencia-gold)/20 transition
+        "
         >
           <span className="text-(--herencia-gold) text-lg">‹</span>
         </button>
@@ -141,14 +142,25 @@ export function ProcessSliderSection() {
         <button
           onClick={goNext}
           className="
-            absolute right-10 top-1/2 -translate-y-1/2 z-40
-            h-12 w-12 rounded-full border border-(--herencia-gold)/40
-            bg-black/40 backdrop-blur-sm flex items-center justify-center
-            hover:bg-(--herencia-gold)/20 transition
-          "
+          hidden md:flex
+          absolute right-10 top-1/2 -translate-y-1/2 z-40
+          h-12 w-12 rounded-full border border-(--herencia-gold)/40
+          bg-black/40 backdrop-blur-sm items-center justify-center
+          hover:bg-(--herencia-gold)/20 transition
+        "
         >
           <span className="text-(--herencia-gold) text-lg">›</span>
         </button>
+        {/* TAP ZONES SOLO PARA MÓVILES */}
+        <div
+          className="absolute inset-y-0 left-0 w-1/2 z-50 md:hidden"
+          onClick={goPrev}
+        />
+
+        <div
+          className="absolute inset-y-0 right-0 w-1/2 z-50 md:hidden"
+          onClick={goNext}
+        />
       </div>
 
       {/* DOTS */}
