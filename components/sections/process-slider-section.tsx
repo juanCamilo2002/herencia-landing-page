@@ -153,12 +153,12 @@ export function ProcessSliderSection() {
         </button>
         {/* TAP ZONES SOLO PARA MÓVILES */}
         <div
-          className="absolute inset-y-0 left-0 w-1/2 z-50 md:hidden"
+          className="absolute inset-y-0 left-0 w-1/2 z-20 md:hidden"
           onClick={goPrev}
         />
 
         <div
-          className="absolute inset-y-0 right-0 w-1/2 z-50 md:hidden"
+          className="absolute inset-y-0 right-0 w-1/2 z-20 md:hidden"
           onClick={goNext}
         />
       </div>
