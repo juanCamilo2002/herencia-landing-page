@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useGesture } from "@use-gesture/react";
 import { cn } from "@/lib/utils";
 
 const slides = [
@@ -45,30 +46,82 @@ const slides = [
 
 export function ProcessSliderSection() {
   const [index, setIndex] = useState(0);
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [paused, setPaused] = useState(false);
 
+  // AUTOPLAY INTELIGENTE
   useEffect(() => {
-    if (timer) clearTimeout(timer);
+    if (!paused) {
+      timeoutRef.current = setTimeout(() => {
+        setIndex((prev) => (prev + 1) % slides.length);
+      }, 6000);
+    }
 
-    const newTimer = setTimeout(() => {
-      setIndex((prev) => (prev + 1) % slides.length);
-    }, 6000);
-
-    setTimer(newTimer);
-
-    return () => clearTimeout(newTimer);
-  }, [index]);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [index, paused]);
 
   const goPrev = () =>
     setIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-
   const goNext = () => setIndex((prev) => (prev + 1) % slides.length);
 
-  return (
-    <section id="proceso" className="relative w-full overflow-hidden">
-      <div className="relative min-h-[95vh] w-full">
+  // PRELOAD DE IMÁGENES SIGUIENTE + ANTERIOR
+  useEffect(() => {
+    const next = slides[(index + 1) % slides.length].bg;
+    const prev = slides[(index - 1 + slides.length) % slides.length].bg;
 
-        {/* --- SLIDES --- */}
+    const img1 = new window.Image();
+    img1.src = next;
+
+    const img2 = new window.Image();
+    img2.src = prev;
+  }, [index]);
+
+  // SWIPE REALISTA
+  const bind = useGesture(
+    {
+      onDrag: ({ swipe: [swipeX], velocity }) => {
+        // Swipe muy suave => no cambia slide
+        if (Math.abs(velocity[0] ?? 0) < 0.3) return;
+
+        if (swipeX === -1) goNext();
+        if (swipeX === 1) goPrev();
+      },
+      onDragStart: () => setPaused(true),
+      onDragEnd: () => setPaused(false),
+    },
+    { drag: { threshold: 15 } }
+  );
+
+  // ALTURA RESPONSIVA
+  const [height, setHeight] = useState("90vh");
+
+  useEffect(() => {
+    const calculateHeight = () => {
+      const w = window.innerWidth;
+      if (w > 1400) return "90vh";
+      if (w > 1024) return "80vh";
+      if (w > 768) return "75vh";
+      return "95vh";
+    };
+
+    setHeight(calculateHeight());
+    const resize = () => setHeight(calculateHeight());
+
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+
+  return (
+    <section id="proceso" className="relative w-full overflow-hidden select-none">
+      <div
+        {...bind()}
+        className="relative w-full touch-pan-y"
+        style={{ height }}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
         {slides.map((slide, i) => {
           const isActive = i === index;
 
@@ -76,44 +129,43 @@ export function ProcessSliderSection() {
             <div
               key={slide.id}
               className={cn(
-                "absolute inset-0 transition-all duration-1600 ease-out",
-                isActive ? "opacity-100 scale-100 z-20" : "opacity-0 scale-105 z-10"
+                "absolute inset-0 transition-all duration-1400 ease-out",
+                isActive
+                  ? "opacity-100 scale-100 z-20"
+                  : "opacity-0 scale-105 z-10 pointer-events-none"
               )}
             >
-              <Image
-                src={slide.bg}
-                alt=""
-                fill
-                className={cn(
-                  "object-cover transition-all duration-2000",
-                  isActive ? "opacity-90 scale-105" : "opacity-0 scale-110"
-                )}
-              />
+              {/* IMAGEN */}
+              <div className="absolute inset-0 overflow-hidden">
+                <Image
+                  src={slide.bg}
+                  alt={slide.title}
+                  fill
+                  priority={i === 0}
+                  className={cn(
+                    "object-cover transition-all duration-1800 origin-center will-change-transform",
+                    isActive ? "opacity-90 scale-[1.03]" : "opacity-0 scale-[1.07]"
+                  )}
+                />
+              </div>
 
-              {/* Degradado lateral */}
-              <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/55 to-transparent" />
+              {/* DEGRADADOS */}
+              <div className="absolute top-0 left-0 bottom-0 w-[55%] bg-linear-to-r from-black/85 via-black/45 to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 h-28 bg-linear-to-t from-black/80 to-transparent pointer-events-none" />
 
-              {/* --- CONTENEDOR DEL TEXTO --- */}
-              <div className="absolute inset-0 flex items-center">
-                <div className="max-w-7xl mx-auto px-6">
+              {/* TEXTO */}
+              <div className="absolute inset-0 flex items-center px-6 z-30">
+                <div className="max-w-7xl mx-auto">
                   <div className="max-w-2xl">
-
-                    {/* Número grande */}
-                    <span className="text-(--herencia-gold)/40 text-6xl font-bold block mb-2 tracking-tight">
+                    <span className="text-(--herencia-gold)/40 text-6xl font-bold block mb-2">
                       {slide.number}
                     </span>
-
-                    {/* Subtítulo */}
                     <p className="text-xs tracking-[0.35rem] uppercase text-(--herencia-gold) mb-4">
                       {slide.subtitle}
                     </p>
-
-                    {/* Título */}
                     <h2 className="text-5xl md:text-6xl font-semibold text-white mb-4 leading-tight">
                       {slide.title}
                     </h2>
-
-                    {/* Descripción */}
                     <p className="text-white/75 text-lg leading-relaxed">
                       {slide.description}
                     </p>
@@ -124,43 +176,26 @@ export function ProcessSliderSection() {
           );
         })}
 
-        {/* Botón PREV */}
+        {/* BOTONES */}
         <button
           onClick={goPrev}
-          className="
-          hidden md:flex
-          absolute left-10 top-1/2 -translate-y-1/2 z-40
-          h-12 w-12 rounded-full border border-(--herencia-gold)/40
-          bg-black/40 backdrop-blur-sm items-center justify-center
-          hover:bg-(--herencia-gold)/20 transition
-        "
+          className="hidden md:flex absolute left-10 top-1/2 -translate-y-1/2 z-40
+            h-12 w-12 rounded-full border border-(--herencia-gold)/40
+            bg-black/40 backdrop-blur-sm items-center justify-center
+            hover:bg-(--herencia-gold)/20 transition"
         >
           <span className="text-(--herencia-gold) text-lg">‹</span>
         </button>
 
-        {/* Botón NEXT */}
         <button
           onClick={goNext}
-          className="
-          hidden md:flex
-          absolute right-10 top-1/2 -translate-y-1/2 z-40
-          h-12 w-12 rounded-full border border-(--herencia-gold)/40
-          bg-black/40 backdrop-blur-sm items-center justify-center
-          hover:bg-(--herencia-gold)/20 transition
-        "
+          className="hidden md:flex absolute right-10 top-1/2 -translate-y-1/2 z-40
+            h-12 w-12 rounded-full border border-(--herencia-gold)/40
+            bg-black/40 backdrop-blur-sm items-center justify-center
+            hover:bg-(--herencia-gold)/20 transition"
         >
           <span className="text-(--herencia-gold) text-lg">›</span>
         </button>
-        {/* TAP ZONES SOLO PARA MÓVILES */}
-        <div
-          className="absolute inset-y-0 left-0 w-1/2 z-20 md:hidden"
-          onClick={goPrev}
-        />
-
-        <div
-          className="absolute inset-y-0 right-0 w-1/2 z-20 md:hidden"
-          onClick={goNext}
-        />
       </div>
 
       {/* DOTS */}

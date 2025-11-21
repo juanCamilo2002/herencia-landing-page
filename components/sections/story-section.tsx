@@ -60,40 +60,37 @@ export function StorySection() {
         {/* ============================
             IMAGE COLUMN
         ============================ */}
-        <div className="flex-1 flex justify-center reveal animate-fade-up delay-200">
-          <div className="
+
+        <div className="
             relative 
             w-full max-w-md 
             h-64 sm:h-72 md:h-80 lg:h-88
             rounded-3xl overflow-hidden 
             shadow-2xl border border-white/10
           "
-          >
-            <Image
-              src="/images/story-image.jpg"
-              alt="Fotografía de la familia Herencia"
-              fill
-              className="object-cover"
-              priority
-            />
+        >
+          <Image
+            src="/images/story-image.jpg"
+            alt="Fotografía de la familia Herencia"
+            fill
+            className="object-cover"
+            priority
+          />
 
-            <div className="
+          <div className="
               absolute bottom-0 left-0 right-0 
               bg-linear-to-br from-black/60 to-transparent
               backdrop-blur-sm
               p-4
             "
-            >
-              <p className="text-(--herencia-gold) text-sm font-medium">
-                Fotografía familiar
-              </p>
-              <p className="text-white/70 text-xs">
-                Puedes reemplazar esta imagen por una foto real de la familia o la finca.
-              </p>
-            </div>
+          >
+            <p className="text-(--herencia-gold) text-sm font-medium">
+              Fotografía familiar
+            </p>
           </div>
         </div>
       </div>
+
     </section>
   );
 }
